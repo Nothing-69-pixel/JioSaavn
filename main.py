@@ -194,11 +194,21 @@ def normalize_song(song):
         "has_lyrics": safe_bool(info.get("has_lyrics")),
         "320kbps": safe_bool(info.get("320kbps")),
 
-        # Official JioSaavn song page
+        # Official JioSaavn song page (full-song playback stays on JioSaavn)
         "song_url": song.get("perma_url"),
+        "full_song_url": song.get("perma_url"),
 
         # JioTune / preview URL when JioSaavn supplies one
-        "preview_url": info.get("vlink")
+        "preview_url": info.get("vlink"),
+
+        # Protected media metadata returned by JioSaavn.
+        # This is intentionally NOT decrypted or converted into a direct full-track URL.
+        "protected_media": {
+            "encrypted_media_url": info.get("encrypted_media_url"),
+            "encrypted_drm_media_url": info.get("encrypted_drm_media_url"),
+            "cache_state": info.get("cache_state"),
+            "rights": info.get("rights") or {}
+        }
     }
 
 
@@ -314,8 +324,9 @@ def home():
     return jsonify({
         "status": True,
         "name": "JioSaavn Music API",
-        "version": "2.0",
+        "version": "2.1",
         "cors": True,
+        "note": "Preview audio is exposed when available. Full protected tracks are not decrypted; use full_song_url to continue on JioSaavn.",
         "per_page": PER_PAGE,
         "endpoints": {
             "song_search": "/search?q=Tum Hi Ho&page=1",
